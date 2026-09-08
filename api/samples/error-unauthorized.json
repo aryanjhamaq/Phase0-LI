@@ -1,0 +1,4 @@
+{
+  "status": "unauthorized",
+  "message": "A valid API key is required to access this endpoint."
+}

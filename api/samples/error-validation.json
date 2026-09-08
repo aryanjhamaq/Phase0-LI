@@ -1,0 +1,12 @@
+{
+  "status": "validation-error",
+  "message": "The server rejected some fields.",
+  "fieldErrors": {
+    "employee-name": "Employee name is required.",
+    "request-id": "Request ID must use the REQ-YYYY-#### format.",
+    "document-type": "Document type is required.",
+    "submission-date": "Submission date is required.",
+    "document-file": "A document file is required.",
+    "consent": "The consent declaration must be accepted."
+  }
+}

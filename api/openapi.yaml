@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: Employee Center Document Submission API
+  version: 1.0.0
+  description: |
+    Contract for submitting employee document records and retrieving their
+    processing status. Clients POST a document submission, receive a 201 with
+    a submission ID, then GET the status of that submission.
+
+    Base server URL: POST /api/submissions, GET /api/submissions/{submissionId}.
+servers:
+  - url: http://localhost:3000
+    description: Local mock server
+tags:
+  - name: Submissions
+    description: Submit documents and query their processing status.
+
+paths:
+  /api/submissions:
+    post:
+      tags: [Submissions]
+      summary: Submit a document
+      description: |
+        Creates a new document submission in the review queue. The full set of
+        required fields must be present and valid; otherwise the server returns
+        a 400 validation-error listing the offending fields.
+      operationId: submitDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionRequest"
+            examples:
+              validSubmission:
+                summary: A complete, valid submission
+                value:
+                  $ref: "./samples/submission-request.json"
+      responses:
+        "201":
+          description: Submission accepted and queued for review.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionAccepted"
+              examples:
+                success:
+                  value:
+                    $ref: "./samples/submission-accepted.json"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/submissions/{submissionId}:
+    get:
+      tags: [Submissions]
+      summary: Retrieve submission status
+      description: |
+        Returns the current processing status for a previously submitted
+        document. The submissionId is the value returned in the 201 response.
+      operationId: getSubmissionStatus
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: Identifier of the submission to fetch, e.g. SUB-1A2B3C4D.
+          schema:
+            $ref: "#/components/schemas/submissionId"
+          example: SUB-1A2B3C4D
+      responses:
+        "200":
+          description: Submission found; returns its current status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionStatus"
+              examples:
+                received:
+                  value:
+                    $ref: "./samples/submission-status-received.json"
+                inReview:
+                  value:
+                    $ref: "./samples/submission-status-in-review.json"
+                approved:
+                  value:
+                    $ref: "./samples/submission-status-approved.json"
+                rejected:
+                  value:
+                    $ref: "./samples/submission-status-rejected.json"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  schemas:
+    submissionId:
+      type: string
+      pattern: "^SUB-[A-Z0-9]{8}$"
+      minLength: 12
+      maxLength: 12
+      description: Identifier issued by the server on successful submission.
+
+    SubmissionRequest:
+      type: object
+      description: Payload submitted by the client for a new document record.
+      required:
+        - employeeName
+        - requestId
+        - documentType
+        - submissionDate
+        - fileName
+        - consent
+      properties:
+        employeeName:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Full name of the employee submitting the document.
+          example: Jordan Rivera
+        requestId:
+          type: string
+          pattern: "^REQ-\\d{4}-\\d+$"
+          description: Company reference in REQ-YYYY-#### format.
+          example: REQ-2026-0041
+        documentType:
+          type: string
+          enum:
+            - government-id
+            - passport
+            - social-security
+            - tax-form
+            - direct-deposit
+            - education-cert
+            - emergency-contact
+            - non-compete
+          description: Category of the document being submitted.
+          example: tax-form
+        submissionDate:
+          type: string
+          format: date
+          description: Date of submission (YYYY-MM-DD), today or earlier.
+          example: "2026-09-08"
+        additionalNotes:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Optional notes about the submission.
+          example: W-4 reflects new home address.
+        fileName:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Name of the attached document file.
+          example: w4-2026.pdf
+        fileSize:
+          type: integer
+          minimum: 0
+          maximum: 10485760
+          description: Size of the attached file in bytes (max 10 MB).
+          example: 245760
+        consent:
+          type: boolean
+          const: true
+          description: Confirmation that the consent declaration was accepted.
+          example: true
+
+    SubmissionAccepted:
+      type: object
+      description: Success envelope returned on a 201.
+      required:
+        - status
+        - message
+        - submissionId
+        - receivedAt
+      properties:
+        status:
+          type: string
+          const: success
+          description: Fixed success indicator.
+          example: success
+        message:
+          type: string
+          description: Human-readable confirmation.
+          example: Your documents were received and added to the review queue.
+        submissionId:
+          allOf:
+            - $ref: "#/components/schemas/submissionId"
+          example: SUB-1A2B3C4D
+        receivedAt:
+          type: string
+          format: date-time
+          description: Server timestamp when the submission was accepted.
+          example: "2026-09-08T14:32:05.000Z"
+
+    SubmissionStatus:
+      type: object
+      description: Processing status returned for an existing submission.
+      required:
+        - submissionId
+        - status
+        - message
+        - updatedAt
+      properties:
+        submissionId:
+          allOf:
+            - $ref: "#/components/schemas/submissionId"
+          example: SUB-1A2B3C4D
+        status:
+          type: string
+          enum:
+            - received
+            - in-review
+            - approved
+            - rejected
+          description: Current lifecycle state of the submission.
+          example: in-review
+        message:
+          type: string
+          description: Human-readable details about the current state.
+          example: Your documents are currently under review.
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the status was last updated.
+          example: "2026-09-08T15:10:00.000Z"
+
+    ErrorEnvelope:
+      type: object
+      description: Consistent error envelope returned on failure responses.
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          enum:
+            - validation-error
+            - unauthorized
+            - not-found
+            - conflict
+            - server-error
+          example: validation-error
+        message:
+          type: string
+          description: Human-readable description of the error.
+          example: The server rejected some fields.
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of field id to an error message (400 validation only).
+          example:
+            request-id: Request ID must use the REQ-YYYY-#### format.
+
+    ValidationError:
+      type: object
+      description: Rejected payload with per-field error messages.
+      required:
+        - status
+        - message
+        - fieldErrors
+      allOf:
+        - $ref: "#/components/schemas/ErrorEnvelope"
+        - type: object
+          properties:
+            fieldErrors:
+              type: object
+              additionalProperties:
+                type: string
+
+  responses:
+    ValidationError:
+      description: The request body was missing fields, was not valid JSON, or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
+          examples:
+            syntax:
+              summary: Malformed JSON body
+              value:
+                status: validation-error
+                message: The request body is not valid JSON.
+                fieldErrors: {}
+            fields:
+              summary: Invalid fields
+              value:
+                $ref: "./samples/error-validation.json"
+    Unauthorized:
+      description: Missing or invalid authentication credentials.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            default:
+              value:
+                $ref: "./samples/error-unauthorized.json"
+    NotFound:
+      description: The requested submissionId does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            default:
+              value:
+                $ref: "./samples/error-not-found.json"
+    Conflict:
+      description: The submission cannot be accepted because it conflicts with an existing resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            default:
+              value:
+                $ref: "./samples/error-conflict.json"
+    ServerError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            default:
+              value:
+                $ref: "./samples/error-server.json"
