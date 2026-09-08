@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Center — New Hire Document Submission</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">EC</span>
+                <div class="brand-text">
+                    <h1>Employee Center</h1>
+                    <p>Human Resources Portal</p>
+                </div>
+            </div>
+            <div class="user-area">
+                <span class="avatar" aria-hidden="true">JD</span>
+                <span class="user-meta">
+                    <span class="user-name">Jane Doe</span>
+                    <span class="user-role">New Hire</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+        <div class="container nav-inner">
+            <ul>
+                <li><a href="#" class="nav-link">Dashboard</a></li>
+                <li><a href="#" class="nav-link">My Profile</a></li>
+                <li><a href="#" class="nav-link active" aria-current="page">Documents</a></li>
+                <li><a href="#" class="nav-link">Help</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <div class="page-heading">
+            <h2>New Hire Document Submission</h2>
+            <p>Upload the required documents to complete your onboarding profile.</p>
+        </div>
+
+        <div class="portal-grid">
+
+            <div class="content-column">
+
+                <aside class="notice" role="note">
+                    <span class="notice-icon" aria-hidden="true">!</span>
+                    <div>
+                        <strong>Important</strong>
+                        <p>Please ensure all required documents are uploaded within your first week of employment. Incomplete submissions may delay your onboarding process.</p>
+                    </div>
+                </aside>
+
+                <section class="card" aria-labelledby="instructions-title">
+                    <h3 id="instructions-title">Submission Instructions</h3>
+                    <ol class="instructions">
+                        <li>Fill in your personal and request details below.</li>
+                        <li>Select the appropriate document type from the dropdown.</li>
+                        <li>Attach the required file using the file upload field.</li>
+                        <li>Read and accept the consent declaration.</li>
+                        <li>Click <strong>Submit</strong> to complete your submission.</li>
+                    </ol>
+                </section>
+
+                <section class="card" aria-labelledby="form-title">
+                    <div class="card-heading">
+                        <h3 id="form-title">Employee Information</h3>
+                        <span class="required-hint"><span class="required" aria-hidden="true">*</span> Required fields</span>
+                    </div>
+
+                    <!-- novalidate: validation is handled by app.js.
+                         data-api-url is the single configuration point for the mock REST endpoint. -->
+                    <form id="document-form"
+                          action="#"
+                          method="post"
+                          enctype="multipart/form-data"
+                          novalidate
+                          data-api-url="http://localhost:3000/api/submissions">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employee-name">
+                                    Employee Name<span class="required" aria-label="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="employee-name"
+                                    name="employee-name"
+                                    required
+                                    aria-required="true"
+                                    placeholder="e.g. Jane Doe"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="request-id">
+                                    Request ID<span class="required" aria-label="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="request-id"
+                                    name="request-id"
+                                    required
+                                    aria-required="true"
+                                    placeholder="e.g. REQ-2026-0041"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="document-type">
+                                    Document Type<span class="required" aria-label="required">*</span>
+                                </label>
+                                <select id="document-type" name="document-type" required aria-required="true">
+                                    <option value="" disabled selected>&mdash; Select a document type &mdash;</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="submission-date">
+                                    Submission Date<span class="required" aria-label="required">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    id="submission-date"
+                                    name="submission-date"
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="additional-notes">
+                                Additional Notes
+                            </label>
+                            <textarea
+                                id="additional-notes"
+                                name="additional-notes"
+                                rows="3"
+                                placeholder="Any additional information regarding this submission (optional)"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="document-file">
+                                Upload Document<span class="required" aria-label="required">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                id="document-file"
+                                name="document-file"
+                                required
+                                aria-required="true"
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            >
+                            <span class="file-name" id="file-name" aria-live="polite"></span>
+                            <p class="consent-note">
+                                Accepted formats: PDF, JPG, PNG, DOC, DOCX &mdash; Max file size: 10 MB
+                            </p>
+                        </div>
+
+                        <fieldset class="consent-fieldset">
+                            <legend class="visually-hidden">Consent Declaration</legend>
+
+                            <div class="form-group full-width">
+                                <div class="checkbox-group">
+                                    <input
+                                        type="checkbox"
+                                        id="consent"
+                                        name="consent"
+                                        required
+                                        aria-required="true"
+                                    >
+                                    <label for="consent">
+                                        I hereby declare that the documents provided are authentic, accurate, and
+                                        complete to the best of my knowledge. I understand that submitting false or
+                                        fraudulent documents may result in disciplinary action, up to and including
+                                        termination of employment. I consent to the verification of these documents
+                                        by the Human Resources department.
+                                        <span class="required" aria-label="required">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="form-group full-width">
+                            <div class="button-group">
+                                <button type="submit">Submit</button>
+                                <button type="reset">Reset</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </section>
+            </div>
+
+            <aside class="sidebar">
+                <section class="card validation-card" aria-labelledby="validation-title">
+                    <h3 id="validation-title" class="validation-title">Validation Status</h3>
+                    <p class="validation-intro">
+                        This checklist updates automatically as you complete each required field.
+                    </p>
+
+                    <div id="form-status" class="form-status" role="status" aria-live="polite" hidden></div>
+
+                    <ul class="checklist" aria-label="Document submission checklist">
+                        <li class="check-item" data-check="name">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Employee name</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                        <li class="check-item" data-check="request">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Request ID</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                        <li class="check-item" data-check="document-type">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Document type</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                        <li class="check-item" data-check="date">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Submission date</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                        <li class="check-item" data-check="file">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Document upload</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                        <li class="check-item" data-check="consent">
+                            <span class="check-icon" aria-hidden="true"></span>
+                            <span class="check-text">Consent declaration</span>
+                            <span class="check-status">Pending</span>
+                        </li>
+                    </ul>
+
+                    <section id="submission-summary" class="submission-summary" aria-labelledby="summary-title" hidden>
+                        <h4 id="summary-title">Submission Summary</h4>
+                        <dl class="summary-list" id="summary-list"></dl>
+                    </section>
+
+                    <p class="validation-footnote">
+                        Documents are reviewed by Human Resources within 24&ndash;48 business hours.
+                    </p>
+                </section>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <p class="footer-brand">&copy; 2026 Human Resources Department. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Use</a></li>
+                <li><a href="#">Contact HR</a></li>
+            </ul>
+            <p class="footer-support">Support: hrcare@example.com &middot; Ext. 4100</p>
+        </div>
+    </footer>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
